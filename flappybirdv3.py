@@ -31,6 +31,7 @@ STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
 TRAINING = False
 GEN_NR = 1000
+MUTE = True
 
 class Bird:
     IMAGES = BIRD_IMAGES
@@ -364,7 +365,7 @@ def main(genomes, config):
         base.move()
         draw_screen(screen, birds, pipes, base, score, GEN, HIGHSCORE, Pipe.VELOCITY, bird_count, Pipe.HEIGHT, DEAD)
 
-def test_best_genome(config_path, genome_path='FlappyAI\winnerv3.pkl'):
+def test_best_genome(config_path, genome_path='FlappyAI\winnerv2.pkl'):
     DEAD = False
     # Laden der NEAT Konfiguration
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
@@ -386,8 +387,8 @@ def test_best_genome(config_path, genome_path='FlappyAI\winnerv3.pkl'):
     clock = pygame.time.Clock()
     tick_count = 0
     mem = []
-
-    SOUND_TRACK.play(10)
+    if not MUTE:
+        SOUND_TRACK.play(10)
 
     score = 0
     run = True
@@ -411,10 +412,11 @@ def test_best_genome(config_path, genome_path='FlappyAI\winnerv3.pkl'):
 
         if output[0] > 0.5:
             bird.jump()
-            sound_mem = int(tick_count / 10)
-            if sound_mem not in mem:
-                mem.append(sound_mem)
-                SOUND_JUMP.play()
+            if not MUTE:
+                sound_mem = int(tick_count / 10)
+                if sound_mem not in mem:
+                    mem.append(sound_mem)
+                    SOUND_JUMP.play()
 
         bird.move()
         base.move()
@@ -423,9 +425,10 @@ def test_best_genome(config_path, genome_path='FlappyAI\winnerv3.pkl'):
         rem = []
         for pipe in pipes:
             if pipe.collide(bird):
-                SOUND_TRACK.stop()
-                SOUND_DIE.play()
-                SOUND_DEAD.play()
+                if not MUTE:
+                    SOUND_TRACK.stop()
+                    SOUND_DIE.play()
+                    SOUND_DEAD.play()
                 DEAD = True
                 print(score)
                 run = False
@@ -473,16 +476,18 @@ def test_best_genome(config_path, genome_path='FlappyAI\winnerv3.pkl'):
 
         if add_pipe:
             score += 1
-            SOUND_SCORE.play()
+            if not MUTE:
+                SOUND_SCORE.play()
             pipes.append(Pipe(500))
 
         for r in rem:
             pipes.remove(r)
 
         if bird.y + bird.image.get_height() >= 730 or bird.y < 0:
-            SOUND_TRACK.stop()
-            SOUND_DIE.play()
-            SOUND_DEAD.play()
+            if not MUTE:
+                SOUND_TRACK.stop()
+                SOUND_DIE.play()
+                SOUND_DEAD.play()
             DEAD = True
             print(score)
             break
@@ -502,7 +507,7 @@ def run(config_path, gen_nr):
     population.add_reporter(stats)
 
     winner = population.run(main, gen_nr) # Anzahl Generationen
-    with open('FlappyAI\winnerv3.pkl', 'wb') as output:
+    with open('FlappyAI\winnerv2.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 [NEAT]
-fitness_criterion     = max
-fitness_threshold     = 1000
-pop_size              = 124
-reset_on_extinction   = False
+fitness_criterion       = max
+fitness_threshold       = 1000
+pop_size                = 124
+reset_on_extinction     = False
 
 [DefaultGenome]
 # node activation options
@@ -70,10 +70,10 @@ weight_replace_rate     = 0.1
 compatibility_threshold = 3.0
 
 [DefaultStagnation]
-species_fitness_func = max
-max_stagnation       = 20
-species_elitism      = 2
+species_fitness_func    = max
+max_stagnation          = 20
+species_elitism         = 2
 
 [DefaultReproduction]
-elitism            = 2
-survival_threshold = 0.2
+elitism                 = 2
+survival_threshold      = 0.2
