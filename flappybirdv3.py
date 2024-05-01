@@ -16,16 +16,16 @@ GEN = 0
 HIGHSCORE = 0
 DEAD = False
 
-BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird2.png")))]
-PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "pipe.png")))
-BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "base.png")))
-BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bg.png")))
+BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png")))]
+PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "pipe.png")))
+BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "base.png")))
+BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg.png")))
 
-SOUND_JUMP = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "jump.mp3"))
-SOUND_SCORE = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "score.mp3"))
-SOUND_DIE = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "die.mp3"))
-SOUND_DEAD = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "dead.mp3"))
-SOUND_TRACK = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "track.mp3"))
+SOUND_JUMP = pygame.mixer.Sound(os.path.join("sounds", "jump.mp3"))
+SOUND_SCORE = pygame.mixer.Sound(os.path.join("sounds", "score.mp3"))
+SOUND_DIE = pygame.mixer.Sound(os.path.join("sounds", "die.mp3"))
+SOUND_DEAD = pygame.mixer.Sound(os.path.join("sounds", "dead.mp3"))
+SOUND_TRACK = pygame.mixer.Sound(os.path.join("sounds", "track.mp3"))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
@@ -51,7 +51,7 @@ class Bird:
         self.image = self.IMAGES[0]
 
     def jump(self):
-        self.velocity = -10.5
+        self.velocity = -5
         self.tick_count = 0
         self.height = self.y
 
@@ -106,9 +106,9 @@ class Bird:
 class Pipe:
     GAP = 200
     if FAST:
-        VELOCITY = 13
+        VELOCITY = 2
     else:
-        VELOCITY = 5
+        VELOCITY = 1
     HEIGHT = 0
 
     def __init__(self, x):
@@ -154,9 +154,9 @@ class Pipe:
 
 class Base:
     if FAST:
-        VELOCITY = 13
+        VELOCITY = 2
     else:
-        VELOCITY = 5
+        VELOCITY = 1
     WIDTH = BASE_IMAGE.get_width()
     IMAGE = BASE_IMAGE
 
@@ -239,11 +239,13 @@ def main(genomes, config):
 
     score = 0
     run = True
+    #counter = 0
     while run:
+
         if FAST:
             clock.tick(60)
         else:
-            clock.tick(30) # Tickrate
+            clock.tick(240) # Tickrate
         bird_count = len(birds)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -269,9 +271,14 @@ def main(genomes, config):
             break
         
         Pipe.HEIGHT = pipes[pipe_ind].height
+        #counter+=1
+
 
         for x, bird in enumerate(birds):
+           # if counter%3==0:
             bird.move()
+
+
             if bird.y < pipes[pipe_ind].bot or bird.y > pipes[pipe_ind].height:
                 ge[x].fitness += 0.1
             
@@ -302,39 +309,12 @@ def main(genomes, config):
                 #rem.append(pipe)     
             
             pipe.move()
-        
-        if FAST:
-            if score > 30:
-                Pipe.VELOCITY = 25
-                Base.VELOCITY = 25
-            elif score > 25:
-                Pipe.VELOCITY = 23
-                Base.VELOCITY = 23
-            elif score > 20:
-                Pipe.VELOCITY = 21
-                Base.VELOCITY = 21
-            elif score > 15:
-                Pipe.VELOCITY = 19
-                Base.VELOCITY = 19
-            elif score > 10:
-                Pipe.VELOCITY = 17
-                Base.VELOCITY = 17
-            elif score > 5:
-                Pipe.VELOCITY = 15
-                Base.VELOCITY = 15
+
+        if score<100:
+            Pipe.VELOCITY= Base.VELOCITY = score*(2/15)+1
         else:
-            if score > 20:
-                Pipe.VELOCITY = 13
-                Base.VELOCITY = 13
-            elif score > 15:
-                Pipe.VELOCITY = 11
-                Base.VELOCITY = 11
-            elif score > 10:
-                Pipe.VELOCITY = 9
-                Base.VELOCITY = 9
-            elif score > 5:
-                Pipe.VELOCITY = 7
-                Base.VELOCITY = 7
+            Base.VELOCITY=Pipe.VELOCITY = 10
+
         
         if add_pipe:
             score += 1
