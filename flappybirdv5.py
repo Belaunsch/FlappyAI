@@ -51,11 +51,11 @@ class Bird:
         self.height = self.y
         self.image_count = 0
         self.image = self.IMAGES[0]
-        self.moon = True
+        self.moon = False
 
     def jump(self):
         if self.moon:
-            self.velocity = -12.5
+            self.velocity = -1
         else:
             self.velocity = -10.5
 
@@ -66,7 +66,8 @@ class Bird:
         self.tick_count += 1
         if self.moon:
             #displacement = (self.velocity*self.tick_count + 1.5*self.tick_count**2)*0.05 #generelle bewegungsgeschwindigkeit jump/drop
-            displacement =(self.velocity*self.tick_count+2.962*self.tick_count**2-14.149*self.tick_count)*0.05
+            #displacement =(self.velocity*self.tick_count+2.962*self.tick_count**2-14.149*self.tick_count)*0.05
+            displacement = self.velocity*self.tick_count+(1/20)*self.tick_count**2
         else:
             displacement = self.velocity*self.tick_count + 1.5*self.tick_count**2 #calculaates movement of bird frame per frame based on the previous jumps
 
