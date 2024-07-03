@@ -40,7 +40,7 @@ STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
 MOON_MODE = True
 TRAINING = True
-GEN_NR = 420
+GEN_NR = 20
 MUTE = True
 FAST = False
 
@@ -464,7 +464,10 @@ def main(genomes, config):
         if bird.moon:
             Pipe.VELOCITY = Base.VELOCITY = (12.13 * math.log10(score + 9.37) - 6.19)*0.75
         else:
-            Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19
+            if Pipe.VELOCITY and Base.VELOCITY <= 12:
+                Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19
+            else:
+                Pipe.VELOCITY = Base.VELOCITY = 12
 
         if add_pipe:
             score += 1
@@ -516,7 +519,7 @@ def main(genomes, config):
                     Pipe.VELOCITY)
 
 
-def test_best_genome(config_path, genome_path='w_02.pkl'):
+def test_best_genome(config_path, genome_path='winner000.pkl'):
     DEAD = False
     # Laden der NEAT Konfiguration
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
@@ -562,7 +565,7 @@ def test_best_genome(config_path, genome_path='w_02.pkl'):
             pipe_ind = 1
 
         # Entscheidung des Netzwerks basierend auf der Position des Vogels und der nächsten Röhre
-        output = net.activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot)))
+        output = net.activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot), bird.moon))
 
         if output[0] > 0.5:
             bird.jump()
@@ -595,38 +598,10 @@ def test_best_genome(config_path, genome_path='w_02.pkl'):
                 rem.append(pipe)
 
             pipe.move()
-
-        if FAST:
-            if score > 50:
-                Pipe.VELOCITY = 25
-                Base.VELOCITY = 25
-            elif score > 45:
-                Pipe.VELOCITY = 23
-                Base.VELOCITY = 23
-            elif score > 40:
-                Pipe.VELOCITY = 21
-                Base.VELOCITY = 21
-            elif score > 35:
-                Pipe.VELOCITY = 19
-                Base.VELOCITY = 19
-            elif score > 30:
-                Pipe.VELOCITY = 17
-                Base.VELOCITY = 17
-            elif score > 25:
-                Pipe.VELOCITY = 15
-                Base.VELOCITY = 15
-        if score > 20:
-            Pipe.VELOCITY = 13
-            Base.VELOCITY = 13
-        elif score > 15:
-            Pipe.VELOCITY = 11
-            Base.VELOCITY = 11
-        elif score > 10:
-            Pipe.VELOCITY = 9
-            Base.VELOCITY = 9
-        elif score > 5:
-            Pipe.VELOCITY = 7
-            Base.VELOCITY = 7
+        if Pipe.VELOCITY <= 10:
+            Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19
+        else:
+            Pipe.VELOCITY = Base.VELOCITY = 10
 
         if add_pipe:
             score += 1
@@ -646,7 +621,7 @@ def test_best_genome(config_path, genome_path='w_02.pkl'):
             print(score)
             break
 
-        draw_screen(screen, [bird], pipes, base, score, 1, HIGHSCORE, Pipe.VELOCITY, 1, Pipe.HEIGHT, DEAD)
+        draw_screen(screen, [bird], pipes, base, score, 1, HIGHSCORE, Pipe.VELOCITY, 1, Pipe.HEIGHT, DEAD, Pipe.VELOCITY)
         if DEAD:
             time.sleep(7)
             break
@@ -663,7 +638,7 @@ def run(config_path, gen_nr):
     population.add_reporter(stats)
 
     winner = population.run(main, gen_nr)  # Anzahl Generationen
-    with open('winnerv7.pkl', 'wb') as output:  #Den Winner abspeichern
+    with open('winner000.pkl', 'wb') as output:  #Den Winner abspeichern
         pickle.dump(winner, output, 1)
 
 
