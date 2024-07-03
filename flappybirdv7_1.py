@@ -40,7 +40,7 @@ SOUND_TRACK = pygame.mixer.Sound(os.path.join("sounds", "track.mp3"))
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
 MOON_MODE = True
-TRAINING = True
+TRAINING = False
 GEN_NR = 420
 MUTE = True
 FAST = False
@@ -526,7 +526,7 @@ def main(genomes, config):
                     Pipe.VELOCITY)
 
 
-def test_best_genome(config_path, genome_path='winner000.pkl'):
+def test_best_genome(config_path, genome_path='winnerv666.pkl'):
     DEAD = False
     # Laden der NEAT Konfiguration
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
