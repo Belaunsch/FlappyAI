@@ -27,7 +27,8 @@ PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "
 BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "base.png")))
 BASE_MOON_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "base2.png")))
 BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg.png")))
-BG_MOON_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg2.png")))
+#BG_MOON_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg2.png")))
+BG_MOON_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg3.png")))
 MOON_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "moon.png")))
 
 SOUND_JUMP = pygame.mixer.Sound(os.path.join("sounds", "jump.mp3"))
@@ -40,7 +41,7 @@ STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
 MOON_MODE = True
 TRAINING = True
-GEN_NR = 20
+GEN_NR = 420
 MUTE = True
 FAST = False
 
@@ -62,11 +63,11 @@ class Bird:
         self.image = self.IMAGES[0]
         self.moon = 0
         self.moontick = 0
-        self.moondelay = 0
+
 
     def jump(self):
         if self.moon:
-            self.velocity = -1
+            self.velocity = -10
         else:
             self.velocity = -10.5
 
@@ -75,28 +76,28 @@ class Bird:
 
     def reset_moon(self):
         self.moon = 0
-        self.moondelay = 0
+
         self.moontick = 0
         print("Moon mode reset!")
 
     def move(self):
         self.tick_count += 1
-        
-
-        if self.moondelay >= 1:
-            self.moondelay+=1
-            if self.moondelay>=16:
-                self.moon = 1
-
 
         if self.moon:
             self.moontick += 1
-
-            if self.moontick >= 300:
+            if self.moontick >= 100:
                 self.reset_moon()
+
+
+
+
+        if self.moon:
+
             # displacement = (self.velocity*self.tick_count + 1.5*self.tick_count**2)*0.05 #generelle bewegungsgeschwindigkeit jump/drop
             # displacement =(self.velocity*self.tick_count+2.962*self.tick_count**2-14.149*self.tick_count)*0.05
-            displacement = self.velocity * self.tick_count + (1 / 20) * self.tick_count ** 2
+            #displacement = self.velocity * self.tick_count + (1 / 20) * self.tick_count ** 2
+             #displacement = self.velocity * self.tick_count + 1.5 * self.tick_count ** 2
+             displacement = self.velocity * self.tick_count + 0.6 * self.tick_count ** 2
         else:
             displacement = self.velocity * self.tick_count + 1.5 * self.tick_count ** 2  # calculaates movement of bird frame per frame based on the previous jumps
         # If we are moving upwards, move a little bit more (can be messed with)
@@ -104,16 +105,13 @@ class Bird:
             if self.moon:
                 displacement -= 2 * 0.05
             else:
-                displacement -= 2 
+                displacement -= 2
 
         if self.moon:
-            if displacement >= 5:
-                displacement = 5
-            if displacement <= -16:
-                displacement = -16
+            displacement = max(min(displacement, 5), -5)
         else:
-            if displacement >= 16:
-                displacement = 16
+            displacement = max(min(displacement, 16), -16)
+
 
         self.y = self.y + displacement
 
@@ -176,7 +174,7 @@ class Pipe:
 
         self.passed = False
         if MOON_MODE:
-            self.show_moon = random.random() < 0.25  # Decision to show moon is made once
+            self.show_moon = random.random() < 0.35  # Decision to show moon is made once
         else:
             self.show_moon = False  # Decision to show moon is made once
             
@@ -218,7 +216,7 @@ class Pipe:
             m_point = True if bird.x>=self.x and self.show_moon else False
 
             if m_point:
-                if not bird.moon and bird.moondelay < 1:  # Only activate moon mode if it wasn't already active
+               """ if not bird.moon and bird.moondelay < 1:  # Only activate moon mode if it wasn't already active
                     #bird.moon = 1  # Collision with PIPE_MOON
                     bird.velocity = bird.tick_count = 0
                     bird.moondelay = 1
@@ -227,7 +225,14 @@ class Pipe:
 
                     #print("Bird collided with moon!")
                     
-                return False
+                return False"""
+
+
+               if not bird.moon:
+                   bird.moon = 1  # Collision with PIPE_MOON
+
+
+               return False
 
         return False  # No collision
 
@@ -392,7 +397,9 @@ def main(genomes, config):
             bird.move()
             if bird.y < pipes[pipe_ind].bot or bird.y > pipes[pipe_ind].height:
                 ge[x].fitness += 0.1
-            if bird.tick_count > 7:
+            if bird.y == pipes[pipe_ind].bot+((pipes[pipe_ind].height-pipes[pipe_ind].bot)/2):
+                ge[x].fitness += 0.6
+            if bird.tick_count > 1:
                 output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot), bird.moon))
 
                 if output[0] > 0.5:  # if output-neuron is > 0.5 jummp else not jump
@@ -462,7 +469,7 @@ def main(genomes, config):
             Base.VELOCITY=Pipe.VELOCITY = 10"""
 
         if bird.moon:
-            Pipe.VELOCITY = Base.VELOCITY = (12.13 * math.log10(score + 9.37) - 6.19)*0.75
+            Pipe.VELOCITY = Base.VELOCITY = (12.13 * math.log10(score + 9.37) - 6.19)*0.5
         else:
             if Pipe.VELOCITY and Base.VELOCITY <= 12:
                 Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19
@@ -638,7 +645,7 @@ def run(config_path, gen_nr):
     population.add_reporter(stats)
 
     winner = population.run(main, gen_nr)  # Anzahl Generationen
-    with open('winner000.pkl', 'wb') as output:  #Den Winner abspeichern
+    with open('winnerv7.pkl', 'wb') as output:  #Den Winner abspeichern
         pickle.dump(winner, output, 1)
 
 
