@@ -16,20 +16,20 @@ GEN = 0
 HIGHSCORE = 0
 DEAD = False
 
-BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bird2.png")))]
-PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "pipe.png")))
-BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "base.png")))
-BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("FlappyAI\images", "bg.png")))
+BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png")))]
+PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "pipe.png")))
+BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "base.png")))
+BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg.png")))
 
-SOUND_JUMP = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "jump.mp3"))
-SOUND_SCORE = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "score.mp3"))
-SOUND_DIE = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "die.mp3"))
-SOUND_DEAD = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "dead.mp3"))
-SOUND_TRACK = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "track.mp3"))
+SOUND_JUMP = pygame.mixer.Sound(os.path.join("sounds", "jump.mp3"))
+SOUND_SCORE = pygame.mixer.Sound(os.path.join("sounds", "score.mp3"))
+SOUND_DIE = pygame.mixer.Sound(os.path.join("sounds", "die.mp3"))
+SOUND_DEAD = pygame.mixer.Sound(os.path.join("sounds", "dead.mp3"))
+SOUND_TRACK = pygame.mixer.Sound(os.path.join("sounds", "track.mp3"))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
-TRAINING = False
+TRAINING = True
 GEN_NR = 420
 MUTE = False
 

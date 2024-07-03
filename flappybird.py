@@ -13,10 +13,10 @@ SCREEN_HEIGHT = 800
 GEN = 0
 HIGHSCORE = 0
 
-BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "bird2.png")))]
-PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "pipe.png")))
-BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "base.png")))
-BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("kiproject\images", "bg.png")))
+BIRD_IMAGES = [pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird1.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png"))), pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png")))]
+PIPE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "pipe.png")))
+BASE_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "base.png")))
+BG_IMAGE = pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bg.png")))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
