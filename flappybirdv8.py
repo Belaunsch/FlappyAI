@@ -63,11 +63,12 @@ class Bird:
         self.image = self.IMAGES[0]
         self.moon = 0
         self.moontick = 0
+        self.moonticks = 0
 
 
     def jump(self):
         if self.moon:
-            self.velocity = -10
+            self.velocity = -12
         else:
             self.velocity = -10.5
 
@@ -84,6 +85,8 @@ class Bird:
         self.tick_count += 1
 
         if self.moon:
+            if self.moonticks > 0:
+                self.moonticks -= 1
             self.moontick += 1
             if self.moontick >= 100:
                 self.reset_moon()
@@ -174,7 +177,7 @@ class Pipe:
 
         self.passed = False
         if MOON_MODE:
-            self.show_moon = random.random() < 0.35  # Decision to show moon is made once
+            self.show_moon = random.random() < 0.55  # Decision to show moon is made once
         else:
             self.show_moon = False  # Decision to show moon is made once
             
@@ -395,13 +398,19 @@ def main(genomes, config):
 
         for x, bird in enumerate(birds):
             bird.move()
-            if bird.y < pipes[pipe_ind].bot or bird.y > pipes[pipe_ind].height:
-                ge[x].fitness += 0.1
-            if bird.y == pipes[pipe_ind].bot+((pipes[pipe_ind].height-pipes[pipe_ind].bot)/2):
-                ge[x].fitness += 0.6
-            if bird.tick_count > 1:
-                output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot), bird.moon))
-
+           # if bird.y > pipes[pipe_ind].bot and bird.y < pipes[pipe_ind].height:
+            #    ge[x].fitness += 0.3
+            #if bird.y > (pipes[pipe_ind].bot+((pipes[pipe_ind].height-pipes[pipe_ind].bot)/2))+60 and bird.y < (pipes[pipe_ind].bot+((pipes[pipe_ind].height-pipes[pipe_ind].bot)/2))-60:
+            #    ge[x].fitness += 0.3
+            #if bird.tick_count > 1:
+            if bird.moon:
+                if bird.moonticks == 0:
+                    bird.moonticks = 10
+                    output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot) , bird.moon, abs(pipes[pipe_ind].x),bird.moonticks))
+                    if output[0] > 0.5:  # if output-neuron is > 0.5 jummp else not jump
+                        bird.jump()
+            else:
+                output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot) , bird.moon, abs(pipes[pipe_ind].x),bird.moonticks))
                 if output[0] > 0.5:  # if output-neuron is > 0.5 jummp else not jump
                     bird.jump()
 
@@ -670,7 +679,7 @@ def run(config_path, gen_nr):
     population.add_reporter(stats)
 
     winner = population.run(main, gen_nr)  # Anzahl Generationen
-    with open('winnerv666.pkl', 'wb') as output:  #Den Winner abspeichern
+    with open('winnerv667.pkl', 'wb') as output:  #Den Winner abspeichern
         pickle.dump(winner, output, 1)
 
 
