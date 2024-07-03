@@ -38,6 +38,7 @@ SOUND_TRACK = pygame.mixer.Sound(os.path.join("sounds", "track.mp3"))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
+MOON_MODE = True
 TRAINING = True
 GEN_NR = 420
 MUTE = True
@@ -80,35 +81,36 @@ class Bird:
 
     def move(self):
         self.tick_count += 1
-
+        
 
         if self.moondelay >= 1:
             self.moondelay+=1
-            if self.moondelay>=3:
+            if self.moondelay>=16:
                 self.moon = 1
 
 
         if self.moon:
             self.moontick += 1
 
-            if self.moontick >= 100:
+            if self.moontick >= 300:
                 self.reset_moon()
             # displacement = (self.velocity*self.tick_count + 1.5*self.tick_count**2)*0.05 #generelle bewegungsgeschwindigkeit jump/drop
             # displacement =(self.velocity*self.tick_count+2.962*self.tick_count**2-14.149*self.tick_count)*0.05
             displacement = self.velocity * self.tick_count + (1 / 20) * self.tick_count ** 2
         else:
             displacement = self.velocity * self.tick_count + 1.5 * self.tick_count ** 2  # calculaates movement of bird frame per frame based on the previous jumps
-
         # If we are moving upwards, move a little bit more (can be messed with)
         if displacement < 0:
-            if not self.moon:
-                displacement -= 2
-            else:
+            if self.moon:
                 displacement -= 2 * 0.05
+            else:
+                displacement -= 2 
 
         if self.moon:
             if displacement >= 5:
                 displacement = 5
+            if displacement <= -16:
+                displacement = -16
         else:
             if displacement >= 16:
                 displacement = 16
@@ -173,7 +175,11 @@ class Pipe:
         self.PIPE_MOON = MOON_IMAGE
 
         self.passed = False
-        self.show_moon = random.random() < 0.5  # Decision to show moon is made once
+        if MOON_MODE:
+            self.show_moon = random.random() < 0.25  # Decision to show moon is made once
+        else:
+            self.show_moon = False  # Decision to show moon is made once
+            
         self.set_height()
 
     def set_height(self):
@@ -203,7 +209,6 @@ class Pipe:
         t_point = bird_mask.overlap(top_mask, top_offset)
 
         if t_point or b_point:
-            print("Collision with pipe")
             return True  # Collision with top or bottom pipe
 
         if self.show_moon:  # Only check for moon collision if the moon is present
@@ -213,12 +218,15 @@ class Pipe:
             m_point = True if bird.x>=self.x and self.show_moon else False
 
             if m_point:
-                if not bird.moon:  # Only activate moon mode if it wasn't already active
+                if not bird.moon and bird.moondelay < 1:  # Only activate moon mode if it wasn't already active
                     #bird.moon = 1  # Collision with PIPE_MOON
+                    bird.velocity = bird.tick_count = 0
                     bird.moondelay = 1
                     #self.update_gap(self.MOON_GAP)  # Update gap to MOON_GAP
                     #threading.Timer(5.0, self.reset_moon, args=[bird]).start()  # Timer for 5 seconds
-                    print("Bird collided with moon!")
+
+                    #print("Bird collided with moon!")
+                    
                 return False
 
         return False  # No collision
@@ -310,8 +318,6 @@ def draw_screen(screen, birds, pipes, base, score, gen, highscore, p_vel, bird_c
 
 
 
-
-
     else:
         text = pygame.font.SysFont("comicsans", 80).render(str(score), 1, (255, 255, 255))
         screen.blit(text, (220, 50))
@@ -334,6 +340,7 @@ def main(genomes, config):
     nets = []
     ge = []
     birds = []
+    tick_count = 0
 
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -354,6 +361,7 @@ def main(genomes, config):
             clock.tick(60)
         else:
             clock.tick(30)  # Tickrate
+        tick_count += 1
         bird_count = len(birds)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -384,11 +392,11 @@ def main(genomes, config):
             bird.move()
             if bird.y < pipes[pipe_ind].bot or bird.y > pipes[pipe_ind].height:
                 ge[x].fitness += 0.1
+            if bird.tick_count > 7:
+                output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot), bird.moon))
 
-            output = nets[x].activate((bird.y, abs(pipes[pipe_ind].height), abs(pipes[pipe_ind].bot), bird.moon))
-
-            if output[0] > 0.5:  # if output-neuron is > 0.5 jummp else not jump
-                bird.jump()
+                if output[0] > 0.5:  # if output-neuron is > 0.5 jummp else not jump
+                    bird.jump()
 
         add_pipe = False
         rem = []
@@ -396,6 +404,7 @@ def main(genomes, config):
             for x, bird in enumerate(birds):
                 if pipe.collide(bird):
                     if bird in birds:  # Check if the bird is still in the list
+                        #print("Collision with pipe")
                         ge[x].fitness -= 3
                         birds.pop(x)
                         nets.pop(x)
@@ -452,7 +461,10 @@ def main(genomes, config):
         else:
             Base.VELOCITY=Pipe.VELOCITY = 10"""
 
-        Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19;
+        if bird.moon:
+            Pipe.VELOCITY = Base.VELOCITY = (12.13 * math.log10(score + 9.37) - 6.19)*0.75
+        else:
+            Pipe.VELOCITY = Base.VELOCITY = 12.13 * math.log10(score + 9.37) - 6.19
 
         if add_pipe:
             score += 1
@@ -461,16 +473,28 @@ def main(genomes, config):
                 HIGHSCORE = score
 
             for g in ge:
-                if score < 10:
-                    g.fitness += 3
-                elif score < 20:
-                    g.fitness += 4
-                elif score < 25:
-                    g.fitness += 5
-                elif score < 30:
-                    g.fitness += 6
-                elif score < 35:
-                    g.fitness += 7
+                if bird.moon:
+                    if score < 10:
+                        g.fitness += 5
+                    elif score < 20:
+                        g.fitness += 6
+                    elif score < 25:
+                        g.fitness += 7
+                    elif score < 30:
+                        g.fitness += 8
+                    elif score < 35:
+                        g.fitness += 9
+                else:
+                    if score < 10:
+                        g.fitness += 3
+                    elif score < 20:
+                        g.fitness += 4
+                    elif score < 25:
+                        g.fitness += 5
+                    elif score < 30:
+                        g.fitness += 6
+                    elif score < 35:
+                        g.fitness += 7
 
             pipes.append(Pipe(500))
 
@@ -639,7 +663,7 @@ def run(config_path, gen_nr):
     population.add_reporter(stats)
 
     winner = population.run(main, gen_nr)  # Anzahl Generationen
-    with open('w_02.pkl', 'wb') as output:
+    with open('winnerv7.pkl', 'wb') as output:  #Den Winner abspeichern
         pickle.dump(winner, output, 1)
 
 

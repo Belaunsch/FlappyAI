@@ -29,10 +29,9 @@ SOUND_TRACK = pygame.mixer.Sound(os.path.join("FlappyAI\sounds", "track.mp3"))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 20)
 
-TRAINING = True
+TRAINING = False
 GEN_NR = 420
-MUTE = True
-FAST = False
+MUTE = False
 
 class Bird:
     IMAGES = BIRD_IMAGES
@@ -105,10 +104,7 @@ class Bird:
 
 class Pipe:
     GAP = 200
-    if FAST:
-        VELOCITY = 13
-    else:
-        VELOCITY = 5
+    VELOCITY = 5
     HEIGHT = 0
 
     def __init__(self, x):
@@ -153,10 +149,7 @@ class Pipe:
 
 
 class Base:
-    if FAST:
-        VELOCITY = 13
-    else:
-        VELOCITY = 5
+    VELOCITY = 5
     WIDTH = BASE_IMAGE.get_width()
     IMAGE = BASE_IMAGE
 
@@ -240,10 +233,7 @@ def main(genomes, config):
     score = 0
     run = True
     while run:
-        if FAST:
-            clock.tick(60)
-        else:
-            clock.tick(30) # Tickrate
+        clock.tick(30) # Tickrate
         bird_count = len(birds)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -259,12 +249,8 @@ def main(genomes, config):
             if len(pipes) > 1 and birds[0].x > pipes[0].x + pipes[0].PIPE_TOP.get_width():
                 pipe.ind = 1
         else:
-            if FAST:
-                Pipe.VELOCITY = 13
-                Base.VELOCITY = 13
-            else:
-                Pipe.VELOCITY = 5
-                Base.VELOCITY = 5    
+            Pipe.VELOCITY = 5
+            Base.VELOCITY = 5    
             run = False
             break
         
@@ -303,38 +289,19 @@ def main(genomes, config):
             
             pipe.move()
         
-        if FAST:
-            if score > 30:
-                Pipe.VELOCITY = 25
-                Base.VELOCITY = 25
-            elif score > 25:
-                Pipe.VELOCITY = 23
-                Base.VELOCITY = 23
-            elif score > 20:
-                Pipe.VELOCITY = 21
-                Base.VELOCITY = 21
-            elif score > 15:
-                Pipe.VELOCITY = 19
-                Base.VELOCITY = 19
-            elif score > 10:
-                Pipe.VELOCITY = 17
-                Base.VELOCITY = 17
-            elif score > 5:
-                Pipe.VELOCITY = 15
-                Base.VELOCITY = 15
-        else:
-            if score > 20:
-                Pipe.VELOCITY = 13
-                Base.VELOCITY = 13
-            elif score > 15:
-                Pipe.VELOCITY = 11
-                Base.VELOCITY = 11
-            elif score > 10:
-                Pipe.VELOCITY = 9
-                Base.VELOCITY = 9
-            elif score > 5:
-                Pipe.VELOCITY = 7
-                Base.VELOCITY = 7
+
+        """if score > 20:
+            Pipe.VELOCITY = 13
+            Base.VELOCITY = 13
+        elif score > 15:
+            Pipe.VELOCITY = 11
+            Base.VELOCITY = 11
+        elif score > 10:
+            Pipe.VELOCITY = 9
+            Base.VELOCITY = 9
+        elif score > 5:
+            Pipe.VELOCITY = 7
+            Base.VELOCITY = 7"""
         
         if add_pipe:
             score += 1
@@ -372,7 +339,7 @@ def main(genomes, config):
         base.move()
         draw_screen(screen, birds, pipes, base, score, GEN, HIGHSCORE, Pipe.VELOCITY, bird_count, Pipe.HEIGHT, DEAD)
 
-def test_best_genome(config_path, genome_path='FlappyAI\w_02.pkl'):
+def test_best_genome(config_path, genome_path='FlappyAI\w_1.pkl'):
     DEAD = False
     # Laden der NEAT Konfiguration
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
@@ -400,10 +367,7 @@ def test_best_genome(config_path, genome_path='FlappyAI\w_02.pkl'):
     score = 0
     run = True
     while run:
-        if FAST:
-            clock.tick(60)
-        else:
-            clock.tick(30)
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -452,26 +416,7 @@ def test_best_genome(config_path, genome_path='FlappyAI\w_02.pkl'):
 
             pipe.move()
 
-        if FAST:
-            if score > 50:
-                Pipe.VELOCITY = 25
-                Base.VELOCITY = 25
-            elif score > 45:
-                Pipe.VELOCITY = 23
-                Base.VELOCITY = 23
-            elif score > 40:
-                Pipe.VELOCITY = 21
-                Base.VELOCITY = 21
-            elif score > 35:
-                Pipe.VELOCITY = 19
-                Base.VELOCITY = 19
-            elif score > 30:
-                Pipe.VELOCITY = 17
-                Base.VELOCITY = 17
-            elif score > 25:
-                Pipe.VELOCITY = 15
-                Base.VELOCITY = 15
-        if score > 20:
+        """if score > 20:
             Pipe.VELOCITY = 13
             Base.VELOCITY = 13
         elif score > 15:
@@ -482,9 +427,7 @@ def test_best_genome(config_path, genome_path='FlappyAI\w_02.pkl'):
             Base.VELOCITY = 9
         elif score > 5:
             Pipe.VELOCITY = 7
-            Base.VELOCITY = 7
-
-        
+            Base.VELOCITY = 7"""
 
         if add_pipe:
             score += 1
